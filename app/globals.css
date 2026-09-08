@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #1e2a1f;
+  --color-paper: #efead9;
+  --color-forest: #3c5a3e;
+  --color-khaki: #a9a16b;
+  --color-clay: #b65c3d;
+  --color-line: #d8d2bc;
+
+  --font-display: "Zilla Slab", serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+body {
+  @apply bg-paper text-ink font-sans;
+}
