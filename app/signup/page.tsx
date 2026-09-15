@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { buildUsername, internalAuthEmail } from "@/lib/username";
 import { TextInput } from "@/components/ui/TextInput";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { LgaGroupFields } from "@/components/signup/LgaGroupFields";
+import { Header } from "@/components/Header";
 
 type Option = { id: number; name: string; state?: string };
 
@@ -114,59 +116,65 @@ export default function SignupPage() {
             return;
         }
 
-        router.push("/signup/pending");
+        router.push(`/signup/pending?username=${username}`);
     }
 
     return (
-        <div className="max-w-sm mx-auto">
-            <h1 className="font-display text-xl text-ink mb-1">Register as CDS President</h1>
-            <p className="text-xs text-[#5c5942] mb-5">
-                Your account needs to be verified before you can log in.
-            </p>
+        <div className="min-h-screen bg-paper">
+            <Header />
+            <div className="max-w-sm mx-auto px-6 py-8">
+                <h1 className="font-display text-xl text-ink mb-1">Register as CDS President</h1>
+                <p className="text-xs text-[#5c5942] mb-5">
+                    Your account needs to be verified before you can log in.
+                </p>
 
-            <form onSubmit={handleSubmit} className="space-y-3">
-                <TextInput
-                    placeholder="Full name"
-                    value={form.fullName}
-                    onChange={(v) => update("fullName", v)}
-                    required
-                />
-                <TextInput
-                    type="email"
-                    placeholder="Your email (for recovery)"
-                    value={form.email}
-                    onChange={(v) => update("email", v)}
-                    required
-                />
+                <form onSubmit={handleSubmit} className="space-y-3" autoComplete="on">
+                    <TextInput
+                        placeholder="Full name"
+                        value={form.fullName}
+                        onChange={(v) => update("fullName", v)}
+                        required
+                    />
+                    <TextInput
+                        type="email"
+                        placeholder="e.g. johndoe@gmail.com"
+                        value={form.email}
+                        onChange={(v) => update("email", v)}
+                        required
+                    />
+                    <p className="text-xs text-[#5c5942] -mt-1">
+                        Use a real email — this is only for password recovery, not for login.
+                    </p>
 
-                <LgaGroupFields
-                    lgas={lgas}
-                    groups={groups}
-                    lgaId={form.lgaId}
-                    groupId={form.groupId}
-                    newGroupName={form.newGroupName}
-                    onLgaChange={(v) => update("lgaId", v)}
-                    onGroupChange={(v) => update("groupId", v)}
-                    onNewGroupNameChange={(v) => update("newGroupName", v)}
-                />
+                    <LgaGroupFields
+                        lgas={lgas}
+                        groups={groups}
+                        lgaId={form.lgaId}
+                        groupId={form.groupId}
+                        newGroupName={form.newGroupName}
+                        onLgaChange={(v) => update("lgaId", v)}
+                        onGroupChange={(v) => update("groupId", v)}
+                        onNewGroupNameChange={(v) => update("newGroupName", v)}
+                    />
 
-                <TextInput
-                    type="password"
-                    placeholder="Password"
-                    value={form.password}
-                    onChange={(v) => update("password", v)}
-                    required
-                />
+                    <PasswordInput
+                        placeholder="Password"
+                        value={form.password}
+                        onChange={(v) => update("password", v)}
+                        required
+                        autoComplete="new-password"
+                    />
 
-                {error && <p className="text-xs text-clay">{error}</p>}
+                    {error && <p className="text-xs text-clay">{error}</p>}
 
-                <button
-                    disabled={loading}
-                    className="bg-forest text-paper rounded-sm px-4 py-2 w-full text-sm disabled:opacity-50"
-                >
-                    {loading ? "Submitting..." : "Register"}
-                </button>
-            </form>
+                    <button
+                        disabled={loading}
+                        className="bg-forest text-paper rounded-sm px-4 py-2 w-full text-sm disabled:opacity-50"
+                    >
+                        {loading ? "Submitting..." : "Register"}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }

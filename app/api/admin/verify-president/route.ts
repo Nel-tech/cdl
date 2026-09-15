@@ -12,11 +12,13 @@ export async function POST(req: Request) {
         process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const { error } = await supabase
+    const { data, error } = await supabase
         .from("cds_presidents")
         .update({ is_verified: true })
-        .eq("id", id);
+        .eq("id", id)
+        .select();
 
+   
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, updated: data });
 }

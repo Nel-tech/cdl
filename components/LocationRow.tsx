@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { StatusTag } from "./StatusTag";
 
@@ -21,20 +22,48 @@ export function LocationRow({
     return (
         <Link
             href={`/locations/${id}`}
-            className="flex justify-between items-center py-4 border-b border-line"
+            className="group flex items-start justify-between gap-4 border border-line rounded-sm p-4 sm:p-5 transition-colors hover:border-forest"
         >
-            <div>
-                <div className="font-display text-base text-ink">{name}</div>
-                <div className="text-xs mt-1 text-[#5c5942]">
-                    {lgaName} {groupName && `· ${groupName}`}
+            <div className="min-w-0 flex-1 space-y-3">
+                <div>
+                    <h3 className="font-display text-lg text-ink break-words group-hover:underline">
+                        {name}
+                    </h3>
+
+                    <p className="text-xs text-[#5c5942] mt-1">
+                        {lgaName ?? "LGA not specified"}
+                        {groupName && ` · ${groupName}`}
+                    </p>
                 </div>
+
                 {lastConfirmedAt && (
-                    <div className="text-xs mt-0.5 text-[#8a8770]">
-                        Last confirmed {new Date(lastConfirmedAt).toLocaleDateString()}
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-[#8a8770]">
+                        <span>Last confirmed</span>
+
+                        <span>
+                            {new Date(lastConfirmedAt).toLocaleDateString(
+                                undefined,
+                                {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                }
+                            )}
+                        </span>
                     </div>
                 )}
             </div>
-            <StatusTag status={status} />
+
+            <div className="flex flex-col items-end gap-4 shrink-0">
+                <StatusTag status={status} />
+
+                <span
+                    aria-hidden="true"
+                    className="text-ink text-lg transition-transform group-hover:translate-x-1"
+                >
+                    →
+                </span>
+            </div>
         </Link>
     );
 }
