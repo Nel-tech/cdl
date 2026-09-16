@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -32,8 +31,16 @@ export function Header() {
         .eq("auth_user_id", user.id)
         .single();
 
-      if (isMounted) {
-        setStatus(president?.is_verified ? "verified" : "pending");
+      if (!isMounted) return;
+
+      if (president?.is_verified) {
+        setStatus("verified");
+        return;
+      }
+
+      setStatus("pending");
+      if (window.location.pathname !== "/signup/pending") {
+        router.push("/signup/pending");
       }
     }
 

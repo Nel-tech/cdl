@@ -8,31 +8,52 @@ import { Header } from "@/components/Header";
 
 function PendingContent() {
     const searchParams = useSearchParams();
-    const username = searchParams.get("username");
+    const paramUsername = searchParams.get("username");
     const supabase = createClient();
 
+    const [username, setUsername] = useState<string | null>(paramUsername);
     const [verified, setVerified] = useState<boolean | null>(null);
     const [checking, setChecking] = useState(false);
 
     async function checkStatus() {
-        if (!username || checking) return;
-
         setChecking(true);
+
+        let lookupUsername = username;
+
+        if (!lookupUsername) {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                setChecking(false);
+                return;
+            }
+            const { data: president } = await supabase
+                .from("cds_presidents")
+                .select("username, is_verified")
+                .eq("auth_user_id", user.id)
+                .single();
+
+            if (president) {
+                setUsername(president.username);
+                setVerified(president.is_verified);
+            }
+            setChecking(false);
+            return;
+        }
 
         const { data } = await supabase
             .from("cds_presidents")
             .select("is_verified")
-            .eq("username", username)
+            .eq("username", lookupUsername)
             .single();
-
         setVerified(data?.is_verified ?? false);
         setChecking(false);
     }
 
     useEffect(() => {
         void checkStatus();
-    }, [username]);
+    }, []);
 
+    
     return (
         <main className="px-4 py-12 sm:px-6 sm:py-16">
             <section className="mx-auto w-full max-w-lg">
