@@ -74,7 +74,7 @@ export function Header() {
           </Link>
         )}
 
-        {(status === "verified" || status === "pending") && (
+        {status === "verified" && (
           <button
             type="button"
             onClick={handleLogout}
