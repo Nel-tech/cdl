@@ -33,15 +33,12 @@ export default function AdminPage() {
 
     async function loadData() {
         setLoading(true);
-
-        const { data: pres } = await supabase
-            .from("cds_presidents")
-            .select(
-                "id, auth_user_id, username, full_name, email, is_verified, lgas(name), cds_groups(name)"
-            )
-            .order("created_at", { ascending: false });
-
-        setPresidents(pres ?? []);
+        const res = await fetch("/api/admin/list-presidents", {
+            method: "POST",
+            body: JSON.stringify({ password: pw }),
+        });
+        const json = await res.json();
+        setPresidents(json.presidents ?? []);
         setLoading(false);
     }
 
