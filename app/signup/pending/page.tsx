@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { VerificationStatus } from "@/components/signup/VerificationStatus";
 import { UsernameDisplay } from "@/components/signup/UsernameDisplay";
 import { VerifiedLoginPrompt } from "@/components/signup/VerifiedLoginPrompt";
-export function PendingContent() {
+ function PendingContent() {
     const searchParams = useSearchParams();
     const paramUsername = searchParams.get("username");
     const supabase = createClient();
@@ -130,3 +130,4 @@ export function PendingContent() {
         </main>
     );
 }
+export default PendingContent
