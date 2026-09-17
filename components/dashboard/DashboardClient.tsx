@@ -42,6 +42,7 @@ export function DashboardClient({
             .eq("lga_id", president.lga_id)
             .eq("cds_group_id", president.cds_group_id)
             .order("created_at", { ascending: false });
+        setLocations(data ?? []);
     }
 
     const activeCount = locations.filter(

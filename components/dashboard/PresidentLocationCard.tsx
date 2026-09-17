@@ -146,7 +146,7 @@ export function PresidentLocationCard({
                 <button
                     disabled={busy}
                     onClick={toggleStatus}
-                    className="text-xs border border-clay text-clay rounded-sm px-3 py-1"
+                    className="text-xs border border-clay text-clay rounded-sm px-3 py-1 hover:bg-clay hover:text-paper transition-colors disabled:opacity-50"
                 >
                     Mark {status === "active" ? "inactive" : "active"}
                 </button>

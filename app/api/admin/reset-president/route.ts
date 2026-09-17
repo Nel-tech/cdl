@@ -18,10 +18,12 @@ export async function POST(req: Request) {
     });
     if (authErr) return NextResponse.json({ error: authErr.message }, { status: 500 });
 
-    // Update the profile row with the new person's details
     const { error: profileErr } = await supabase
         .from("cds_presidents")
-        .update({ full_name: newFullName, email: newEmail })
+        .update({
+            full_name: newFullName,
+            email: newEmail.trim().toLowerCase(),
+        })
         .eq("id", id);
 
     if (profileErr) return NextResponse.json({ error: profileErr.message }, { status: 500 });
