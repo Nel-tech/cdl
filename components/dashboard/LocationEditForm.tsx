@@ -6,6 +6,7 @@ type EditFormValues = {
     address: string;
     contactPerson: string;
     contactPhone: string;
+    signboardPhone: string;
     capacityNotes: string;
 };
 
@@ -26,10 +27,7 @@ export function LocationEditForm({
 }: LocationEditFormProps) {
     const [form, setForm] = React.useState(initialValues);
 
-    function updateField(
-        field: keyof EditFormValues,
-        value: string
-    ) {
+    function updateField(field: keyof EditFormValues, value: string) {
         setForm((current) => ({
             ...current,
             [field]: value,
@@ -51,9 +49,7 @@ export function LocationEditForm({
                     Location management
                 </p>
 
-                <h3 className="font-display text-lg text-ink">
-                    Edit location
-                </h3>
+                <h3 className="font-display text-lg text-ink">Edit location</h3>
 
                 <p className="text-sm text-[#5c5942] mt-1 break-words">
                     Update the information for {name}.
@@ -61,44 +57,32 @@ export function LocationEditForm({
             </div>
 
             <div className="space-y-4">
-                <h4 className="text-sm font-medium text-ink">
-                    Location details
-                </h4>
+                <h4 className="text-sm font-medium text-ink">Location details</h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label
-                            htmlFor="edit-location-name"
-                            className="text-xs text-[#5c5942]"
-                        >
+                        <label htmlFor="edit-location-name" className="text-xs text-[#5c5942]">
                             Location name
                         </label>
 
                         <input
                             id="edit-location-name"
                             value={form.name}
-                            onChange={(e) =>
-                                updateField("name", e.target.value)
-                            }
+                            onChange={(e) => updateField("name", e.target.value)}
                             className="border border-khaki rounded-sm px-3 py-3 text-sm w-full"
                             required
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label
-                            htmlFor="edit-location-address"
-                            className="text-xs text-[#5c5942]"
-                        >
+                        <label htmlFor="edit-location-address" className="text-xs text-[#5c5942]">
                             Address
                         </label>
 
                         <input
                             id="edit-location-address"
                             value={form.address}
-                            onChange={(e) =>
-                                updateField("address", e.target.value)
-                            }
+                            onChange={(e) => updateField("address", e.target.value)}
                             placeholder="Location address"
                             className="border border-khaki rounded-sm px-3 py-3 text-sm w-full"
                         />
@@ -109,38 +93,25 @@ export function LocationEditForm({
             <div className="border-t border-line" />
 
             <div className="space-y-4">
-                <h4 className="text-sm font-medium text-ink">
-                    Contact information
-                </h4>
+                <h4 className="text-sm font-medium text-ink">Contact information</h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label
-                            htmlFor="edit-contact-person"
-                            className="text-xs text-[#5c5942]"
-                        >
+                        <label htmlFor="edit-contact-person" className="text-xs text-[#5c5942]">
                             Contact person
                         </label>
 
                         <input
                             id="edit-contact-person"
                             value={form.contactPerson}
-                            onChange={(e) =>
-                                updateField(
-                                    "contactPerson",
-                                    e.target.value
-                                )
-                            }
+                            onChange={(e) => updateField("contactPerson", e.target.value)}
                             placeholder="Contact person's name"
                             className="border border-khaki rounded-sm px-3 py-3 text-sm w-full"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label
-                            htmlFor="edit-contact-phone"
-                            className="text-xs text-[#5c5942]"
-                        >
+                        <label htmlFor="edit-contact-phone" className="text-xs text-[#5c5942]">
                             Contact phone
                         </label>
 
@@ -148,33 +119,38 @@ export function LocationEditForm({
                             id="edit-contact-phone"
                             type="tel"
                             value={form.contactPhone}
-                            onChange={(e) =>
-                                updateField(
-                                    "contactPhone",
-                                    e.target.value
-                                )
-                            }
+                            onChange={(e) => updateField("contactPhone", e.target.value)}
                             placeholder="Phone number"
                             className="border border-khaki rounded-sm px-3 py-3 text-sm w-full"
                         />
                     </div>
                 </div>
+
+                <div className="space-y-2">
+                    <label htmlFor="edit-signboard-phone" className="text-xs text-[#5c5942]">
+                        Signboard number(s) — if personal contact doesn't work
+                    </label>
+
+                    <input
+                        id="edit-signboard-phone"
+                        type="tel"
+                        value={form.signboardPhone}
+                        onChange={(e) => updateField("signboardPhone", e.target.value)}
+                        placeholder="e.g. 080XXXXXXXX, 070XXXXXXXX"
+                        className="border border-khaki rounded-sm px-3 py-3 text-sm w-full"
+                    />
+                </div>
             </div>
 
             <div className="space-y-2">
-                <label
-                    htmlFor="edit-capacity-notes"
-                    className="text-sm font-medium text-ink"
-                >
+                <label htmlFor="edit-capacity-notes" className="text-sm font-medium text-ink">
                     Capacity notes
                 </label>
 
                 <textarea
                     id="edit-capacity-notes"
                     value={form.capacityNotes}
-                    onChange={(e) =>
-                        updateField("capacityNotes", e.target.value)
-                    }
+                    onChange={(e) => updateField("capacityNotes", e.target.value)}
                     placeholder="e.g. Takes 3–5 corpers per batch"
                     rows={3}
                     className="border border-khaki rounded-sm px-3 py-3 text-sm w-full resize-y"

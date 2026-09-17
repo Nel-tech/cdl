@@ -22,6 +22,7 @@ export function LocationForm({
     const [name, setName] = useState("");
     const [address, setAddress] = useState("");
     const [contactPerson, setContactPerson] = useState("");
+    const [signboardPhone, setSignboardPhone] = useState("");
     const [contactPhone, setContactPhone] = useState("");
     const [capacityNotes, setCapacityNotes] = useState("");
     const [loading, setLoading] = useState(false);
@@ -38,6 +39,7 @@ export function LocationForm({
             address,
             contact_person: contactPerson,
             contact_phone: contactPhone,
+            signboard_Phone: signboardPhone,
             capacity_notes: capacityNotes,
             lga_id: lgaId,
             cds_group_id: cdsGroupId,
@@ -56,6 +58,7 @@ export function LocationForm({
         setAddress("");
         setContactPerson("");
         setContactPhone("");
+        setSignboardPhone("");
         setCapacityNotes("");
 
         onCreated();
@@ -111,51 +114,34 @@ export function LocationForm({
             <div className="border-t border-line" />
 
             {/* Contact information */}
-            <div className="space-y-4">
-                <h3 className="text-sm font-medium text-ink">
-                    Contact information
-                </h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <label
-                            htmlFor="contact-person"
-                            className="text-xs text-[#5c5942]"
-                        >
-                            Contact person
-                        </label>
-
-                        <input
-                            id="contact-person"
-                            placeholder="Name of contact person"
-                            value={contactPerson}
-                            onChange={(e) =>
-                                setContactPerson(e.target.value)
-                            }
-                            className="border border-khaki rounded-sm px-3 py-3 w-full text-sm"
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <label
-                            htmlFor="contact-phone"
-                            className="text-xs text-[#5c5942]"
-                        >
-                            Contact phone
-                        </label>
-
-                        <input
-                            id="contact-phone"
-                            type="tel"
-                            placeholder="Phone number"
-                            value={contactPhone}
-                            onChange={(e) =>
-                                setContactPhone(e.target.value)
-                            }
-                            className="border border-khaki rounded-sm px-3 py-3 w-full text-sm"
-                        />
-                    </div>
-                </div>
+            <div>
+                <label className="text-xs text-[#5c5942]">Contact name (e.g. manager, caretaker)</label>
+                <input
+                    placeholder="e.g. Mr. Effiong (Farm Manager)"
+                    value={contactPerson}
+                    onChange={(e) => setContactPerson(e.target.value)}
+                    className="border border-khaki rounded-sm px-3 py-2 w-full text-sm mt-1"
+                />
+            </div>
+            <div>
+                <label className="text-xs text-[#5c5942]">Contact phone number</label>
+                <input
+                    placeholder="e.g. 080XXXXXXXX"
+                    value={contactPhone}
+                    onChange={(e) => setContactPhone(e.target.value)}
+                    className="border border-khaki rounded-sm px-3 py-2 w-full text-sm mt-1"
+                />
+            </div>
+            <div>
+                <label className="text-xs text-[#5c5942]">
+                    Signboard number(s) — if personal contact doesn't work
+                </label>
+                <input
+                    placeholder="e.g. 080XXXXXXXX, 070XXXXXXXX"
+                    value={signboardPhone}
+                    onChange={(e) => setSignboardPhone(e.target.value)}
+                    className="border border-khaki rounded-sm px-3 py-2 w-full text-sm mt-1"
+                />
             </div>
 
             <div className="border-t border-line" />

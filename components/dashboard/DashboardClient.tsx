@@ -14,14 +14,15 @@ type President = {
 };
 
 type Location = {
-  id: number;
-  name: string;
-  address?: string | null;
-  contact_person?: string | null;
-  contact_phone?: string | null;
-  capacity_notes?: string | null;
-  status: string;
-  last_confirmed_at: string | null;
+    id: number;
+    name: string;
+    address?: string | null;
+    contact_person?: string | null;
+    contact_phone?: string | null;
+    signboard_phone?: string | null;
+    capacity_notes?: string | null;
+    status: string;
+    last_confirmed_at: string | null;
 };
 
 export function DashboardClient({
@@ -36,12 +37,11 @@ export function DashboardClient({
 
     async function refresh() {
         const { data } = await supabase
-  .from("locations")
-  .select("id, name, address, contact_person, contact_phone, capacity_notes, status, last_confirmed_at")
-  .eq("lga_id", president.lga_id)
-  .eq("cds_group_id", president.cds_group_id)
-  .order("created_at", { ascending: false });
-setLocations(data ?? []);
+            .from("locations")
+            .select("id, name, address, contact_person, contact_phone, signboard_phone, capacity_notes, status, last_confirmed_at")
+            .eq("lga_id", president.lga_id)
+            .eq("cds_group_id", president.cds_group_id)
+            .order("created_at", { ascending: false });
     }
 
     const activeCount = locations.filter(

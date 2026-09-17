@@ -44,6 +44,11 @@ export default function RecoverUsernamePage() {
     return (
         <div className="min-h-screen bg-paper">
             <Header />
+            <p className="text-xs text-[#5c5942] mb-5">
+                Enter the recovery email you used when registering.
+                <br />
+                <a href="/login" className="underline text-forest">← Back to login</a>
+            </p>
 
             <main className="px-4 py-12 sm:px-6 sm:py-16">
                 <section className="mx-auto w-full max-w-md">

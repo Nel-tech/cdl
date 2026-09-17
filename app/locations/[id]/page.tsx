@@ -13,7 +13,7 @@ export default async function LocationDetail({
     const isLoggedIn = !!user;
 
     const columns = isLoggedIn
-        ? "id, name, address, contact_person, contact_phone, capacity_notes, status, last_confirmed_at, lgas(name), cds_groups(name)"
+        ? "id, name, address, contact_person, contact_phone, signboard_phone, capacity_notes, status, last_confirmed_at, lgas(name), cds_groups(name)"
         : "id, name, address, capacity_notes, status, last_confirmed_at, lgas(name), cds_groups(name)";
 
     const { data: location } = await supabase
@@ -43,12 +43,19 @@ export default async function LocationDetail({
                 )}
 
                 {isLoggedIn ? (
-                    loc.contact_person && (
-                        <div>
-                            <span className="text-[#5c5942]">Contact: </span>
-                            {loc.contact_person} {loc.contact_phone && `— ${loc.contact_phone}`}
-                        </div>
-                    )
+                    <>
+                        {loc.contact_person && (
+                            <div>
+                                <span className="text-[#5c5942]">Contact: </span>
+                                {loc.contact_person} {loc.contact_phone && `— ${loc.contact_phone}`}
+                            </div>
+                        )}
+                        {loc.signboard_phone && (
+                            <div className="text-xs text-[#8a8770]">
+                                If that number doesn't go through, try the signboard number(s): {loc.signboard_phone}
+                            </div>
+                        )}
+                    </>
                 ) : (
                     <div className="text-xs text-clay pt-2 border-t border-line mt-2">
                         Contact details are only visible to CDS presidents.{" "}
