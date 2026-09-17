@@ -4,13 +4,10 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Header } from "@/components/Header";
 import { VerificationStatus } from "@/components/signup/VerificationStatus";
 import { UsernameDisplay } from "@/components/signup/UsernameDisplay";
 import { VerifiedLoginPrompt } from "@/components/signup/VerifiedLoginPrompt";
-import { CheckStatusButton } from "@/components/signup/CheckStatusButton";
-
-function PendingContent() {
+export function PendingContent() {
     const searchParams = useSearchParams();
     const paramUsername = searchParams.get("username");
     const supabase = createClient();
@@ -19,6 +16,8 @@ function PendingContent() {
     const [username, setUsername] = useState<string | null>(paramUsername);
     const [verified, setVerified] = useState<boolean | null>(null);
     const [checking, setChecking] = useState(false);
+    const [pollingActive, setPollingActive] = useState(true);
+    const POLL_DURATION_MS = 5 * 60 * 1000;
 
     async function checkStatus() {
         setChecking(true);
@@ -69,6 +68,24 @@ function PendingContent() {
         void checkStatus();
     }, []);
 
+    useEffect(() => {
+        if (verified || !pollingActive) return;
+
+        const interval = setInterval(() => {
+            void checkStatus();
+        }, 4000);
+
+        const timeout = setTimeout(() => {
+            setPollingActive(false);
+            clearInterval(interval);
+        }, POLL_DURATION_MS);
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timeout);
+        };
+    }, [verified, pollingActive]);
+
     return (
         <main className="px-4 py-12 sm:px-6 sm:py-16">
             <section className="mx-auto w-full max-w-lg">
@@ -92,11 +109,18 @@ function PendingContent() {
 
                     {verified === true && <VerifiedLoginPrompt />}
 
-                    <CheckStatusButton
-                        onCheck={checkStatus}
-                        checking={checking}
-                        disabled={false}
-                    />
+                    {checking && verified !== true && (
+                        <div className="flex items-center gap-2 text-xs text-[#8a8770]">
+                            <span className="inline-block h-3 w-3 rounded-full border-2 border-khaki border-t-forest animate-spin" />
+                            Checking...
+                        </div>
+                    )}
+
+                    {!pollingActive && verified !== true && (
+                        <p className="text-xs text-clay">
+                            This page has stopped auto-checking. Refresh the page to check again.
+                        </p>
+                    )}
                 </div>
 
                 <p className="mt-4 text-xs leading-5 text-[#8a8770]">
@@ -104,16 +128,5 @@ function PendingContent() {
                 </p>
             </section>
         </main>
-    );
-}
-
-export default function SignupPendingPage() {
-    return (
-        <div className="min-h-screen bg-paper">
-            <Header />
-            <Suspense fallback={<div className="px-4 py-12 sm:px-6 sm:py-16 text-sm text-[#5c5942]">Loading...</div>}>
-                <PendingContent />
-            </Suspense>
-        </div>
     );
 }
