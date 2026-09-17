@@ -2,10 +2,13 @@
 
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Header } from "@/components/Header";
-import { useRouter } from "next/navigation"
+import { VerificationStatus } from "@/components/signup/VerificationStatus";
+import { UsernameDisplay } from "@/components/signup/UsernameDisplay";
+import { VerifiedLoginPrompt } from "@/components/signup/VerifiedLoginPrompt";
+import { CheckStatusButton } from "@/components/signup/CheckStatusButton";
 
 function PendingContent() {
     const searchParams = useSearchParams();
@@ -18,9 +21,34 @@ function PendingContent() {
     const [checking, setChecking] = useState(false);
 
     async function checkStatus() {
-        if (!username || checking) return;
-
         setChecking(true);
+
+        if (!username) {
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (!user) {
+                setChecking(false);
+                return;
+            }
+
+            const { data: president } = await supabase
+                .from("cds_presidents")
+                .select("username, is_verified")
+                .eq("auth_user_id", user.id)
+                .single();
+
+            if (president) {
+                setUsername(president.username);
+                setVerified(president.is_verified);
+                if (president.is_verified) {
+                    router.push("/dashboard");
+                    return;
+                }
+            }
+
+            setChecking(false);
+            return;
+        }
 
         const { data } = await supabase
             .from("cds_presidents")
@@ -41,7 +69,6 @@ function PendingContent() {
         void checkStatus();
     }, []);
 
-    
     return (
         <main className="px-4 py-12 sm:px-6 sm:py-16">
             <section className="mx-auto w-full max-w-lg">
@@ -59,49 +86,17 @@ function PendingContent() {
                 </div>
 
                 <div className="rounded-sm border border-khaki bg-paper p-5 sm:p-6">
-                    <div className="mb-5 flex items-start gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-khaki text-ink">
-                            {verified === true ? "✓" : "…"}
-                        </div>
+                    <VerificationStatus verified={verified} />
 
-                        <div className="min-w-0 flex-1">
-                            <h2 className="font-display text-lg font-semibold text-ink">
-                                {verified === true ? "You're verified" : "Verification pending"}
-                            </h2>
-                            <p className="mt-1 text-sm leading-6 text-[#5c5942]">
-                                {verified === true
-                                    ? "Your account has been verified. You can now log in."
-                                    : "We'll verify your account after confirming your identity directly."}
-                            </p>
-                        </div>
-                    </div>
+                    {username && <UsernameDisplay username={username} />}
 
-                    {username && (
-                        <div className="mb-5 border-t border-khaki pt-4">
-                            <p className="text-xs text-[#5c5942]">Your login username</p>
-                            <p className="mt-1 break-all font-display text-lg font-semibold text-ink">
-                                {username}
-                            </p>
-                        </div>
-                    )}
+                    {verified === true && <VerifiedLoginPrompt />}
 
-                    {verified === true && (
-                        <div className="mb-4 border border-forest rounded-sm p-3 text-sm text-forest">
-                            Your account is ready.{" "}
-                            <Link href="/login" className="font-semibold underline underline-offset-2">
-                                Log in
-                            </Link>
-                        </div>
-                    )}
-
-                    <button
-                        type="button"
-                        onClick={checkStatus}
-                        disabled={checking || !username}
-                        className="w-full rounded-sm border border-khaki px-4 py-3 text-sm font-medium text-ink transition-opacity disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-                    >
-                        {checking ? "Checking status…" : "Check status again"}
-                    </button>
+                    <CheckStatusButton
+                        onCheck={checkStatus}
+                        checking={checking}
+                        disabled={false}
+                    />
                 </div>
 
                 <p className="mt-4 text-xs leading-5 text-[#8a8770]">
