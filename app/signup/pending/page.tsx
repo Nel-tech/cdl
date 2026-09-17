@@ -5,48 +5,36 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Header } from "@/components/Header";
+import { useRouter } from "next/navigation"
 
 function PendingContent() {
     const searchParams = useSearchParams();
     const paramUsername = searchParams.get("username");
     const supabase = createClient();
+    const router = useRouter();
 
     const [username, setUsername] = useState<string | null>(paramUsername);
     const [verified, setVerified] = useState<boolean | null>(null);
     const [checking, setChecking] = useState(false);
 
     async function checkStatus() {
+        if (!username || checking) return;
+
         setChecking(true);
-
-        let lookupUsername = username;
-
-        if (!lookupUsername) {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                setChecking(false);
-                return;
-            }
-            const { data: president } = await supabase
-                .from("cds_presidents")
-                .select("username, is_verified")
-                .eq("auth_user_id", user.id)
-                .single();
-
-            if (president) {
-                setUsername(president.username);
-                setVerified(president.is_verified);
-            }
-            setChecking(false);
-            return;
-        }
 
         const { data } = await supabase
             .from("cds_presidents")
             .select("is_verified")
-            .eq("username", lookupUsername)
+            .eq("username", username)
             .single();
-        setVerified(data?.is_verified ?? false);
+
+        const isVerified = data?.is_verified ?? false;
+        setVerified(isVerified);
         setChecking(false);
+
+        if (isVerified) {
+            router.push("/dashboard");
+        }
     }
 
     useEffect(() => {

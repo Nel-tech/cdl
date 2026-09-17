@@ -39,7 +39,7 @@ export function LocationForm({
             address,
             contact_person: contactPerson,
             contact_phone: contactPhone,
-            signboard_Phone: signboardPhone,
+            signboard_phone: signboardPhone,
             capacity_notes: capacityNotes,
             lga_id: lgaId,
             cds_group_id: cdsGroupId,
