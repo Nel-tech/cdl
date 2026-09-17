@@ -1,13 +1,14 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Header } from "@/components/Header";
 import { VerificationStatus } from "@/components/signup/VerificationStatus";
 import { UsernameDisplay } from "@/components/signup/UsernameDisplay";
 import { VerifiedLoginPrompt } from "@/components/signup/VerifiedLoginPrompt";
- function PendingContent() {
+
+function PendingContent() {
     const searchParams = useSearchParams();
     const paramUsername = searchParams.get("username");
     const supabase = createClient();
@@ -130,4 +131,14 @@ import { VerifiedLoginPrompt } from "@/components/signup/VerifiedLoginPrompt";
         </main>
     );
 }
-export default PendingContent
+
+export default function SignupPendingPage() {
+    return (
+        <div className="min-h-screen bg-paper">
+            <Header />
+            <Suspense fallback={<div className="px-4 py-12 sm:px-6 sm:py-16 text-sm text-[#5c5942]">Loading...</div>}>
+                <PendingContent />
+            </Suspense>
+        </div>
+    );
+}
