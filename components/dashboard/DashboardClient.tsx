@@ -163,17 +163,22 @@ export function DashboardClient({
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        {locations.map((loc) => (
-                            <PresidentLocationCard
-                                key={loc.id}
-                                id={loc.id}
-                                name={loc.name}
-                                status={loc.status}
-                                lastConfirmedAt={loc.last_confirmed_at}
-                                presidentId={president.id}
-                                onChanged={refresh}
-                            />
-                        ))}
+                            {locations.map((loc) => (
+                                <PresidentLocationCard
+                                    key={loc.id}
+                                    id={loc.id}
+                                    name={loc.name}
+                                    address={loc.address}
+                                    contactPerson={loc.contact_person}
+                                    contactPhone={loc.contact_phone}
+                                    signboardPhone={loc.signboard_phone}
+                                    capacityNotes={loc.capacity_notes}
+                                    status={loc.status}
+                                    lastConfirmedAt={loc.last_confirmed_at}
+                                    presidentId={president.id}
+                                    onChanged={refresh}
+                                />
+                            ))}
                     </div>
                 )}
             </section>
