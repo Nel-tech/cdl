@@ -9,12 +9,11 @@ export default async function DashboardPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) redirect("/login");
 
-    const { data: locations } = await supabase
-  .from("locations")
-  .select("id, name, address, contact_person, contact_phone, signboard_phone, capacity_notes, status, last_confirmed_at")
-  .eq("lga_id", president.lga_id)
-  .eq("cds_group_id", president.cds_group_id)
-  .order("created_at", { ascending: false });
+    const { data: president } = await supabase
+        .from("cds_presidents")
+        .select("id, lga_id, cds_group_id, full_name, is_verified")
+        .eq("auth_user_id", user.id)
+        .single();
 
     if (!president) redirect("/login");
 
@@ -31,7 +30,7 @@ export default async function DashboardPage() {
 
     const { data: locations } = await supabase
         .from("locations")
-        .select("id, name, status, last_confirmed_at")
+        .select("id, name, address, contact_person, contact_phone, signboard_phone, capacity_notes, status, last_confirmed_at")
         .eq("lga_id", president.lga_id)
         .eq("cds_group_id", president.cds_group_id)
         .order("created_at", { ascending: false });

@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/client";
 import { Header } from "@/components/Header";
 import { VerificationStatus } from "@/components/signup/VerificationStatus";
 import { UsernameDisplay } from "@/components/signup/UsernameDisplay";
-import { VerifiedLoginPrompt } from "@/components/signup/VerifiedLoginPrompt";
 
 function PendingContent() {
     const searchParams = useSearchParams();
@@ -87,6 +86,27 @@ function PendingContent() {
         };
     }, [verified, pollingActive]);
 
+    if (verified === true) {
+        return (
+            <main className="px-4 py-12 sm:px-6 sm:py-16">
+                <section className="mx-auto w-full max-w-lg">
+                    <div className="rounded-sm border border-khaki bg-paper p-6 space-y-4">
+                        <div className="flex items-center gap-3">
+                            <span className="inline-block h-4 w-4 rounded-full border-2 border-khaki border-t-forest animate-spin" />
+                            <p className="text-sm text-ink">Setting up your dashboard...</p>
+                        </div>
+
+                        <div className="space-y-2 animate-pulse">
+                            <div className="h-4 bg-khaki/30 rounded-sm w-3/4" />
+                            <div className="h-4 bg-khaki/30 rounded-sm w-1/2" />
+                            <div className="h-4 bg-khaki/30 rounded-sm w-2/3" />
+                        </div>
+                    </div>
+                </section>
+            </main>
+        );
+    }
+
     return (
         <main className="px-4 py-12 sm:px-6 sm:py-16">
             <section className="mx-auto w-full max-w-lg">
@@ -108,16 +128,14 @@ function PendingContent() {
 
                     {username && <UsernameDisplay username={username} />}
 
-                    {verified === true && <VerifiedLoginPrompt />}
-
-                    {checking && verified !== true && (
+                    {checking && (
                         <div className="flex items-center gap-2 text-xs text-[#8a8770]">
                             <span className="inline-block h-3 w-3 rounded-full border-2 border-khaki border-t-forest animate-spin" />
                             Checking...
                         </div>
                     )}
 
-                    {!pollingActive && verified !== true && (
+                    {!pollingActive && (
                         <p className="text-xs text-clay">
                             This page has stopped auto-checking. Refresh the page to check again.
                         </p>
