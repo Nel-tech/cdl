@@ -1,31 +1,43 @@
 "use client";
 import React from "react";
+import { SignboardPicker, useSignboardUrl } from "./SignboardPicker";
 
-type EditFormValues = {
+export type EditFormValues = {
     name: string;
     address: string;
     contactPerson: string;
     contactPhone: string;
-    signboardPhone: string;
-    capacityNotes: string;
+    sideNote: string;
+};
+
+export type EditPhotoChange = {
+    newFile: File | null;
+    removeExisting: boolean;
 };
 
 type LocationEditFormProps = {
     name: string;
     initialValues: EditFormValues;
+    signboardImagePath: string | null;
     loading: boolean;
-    onSave: (values: EditFormValues) => void;
+    error?: string | null;
+    onSave: (values: EditFormValues, photo: EditPhotoChange) => void;
     onCancel: () => void;
 };
 
 export function LocationEditForm({
     name,
     initialValues,
+    signboardImagePath,
     loading,
+    error,
     onSave,
     onCancel,
 }: LocationEditFormProps) {
     const [form, setForm] = React.useState(initialValues);
+    const [newFile, setNewFile] = React.useState<File | null>(null);
+    const [removeExisting, setRemoveExisting] = React.useState(false);
+    const existingUrl = useSignboardUrl(signboardImagePath);
 
     function updateField(field: keyof EditFormValues, value: string) {
         setForm((current) => ({
@@ -36,7 +48,7 @@ export function LocationEditForm({
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        onSave(form);
+        onSave(form, { newFile, removeExisting });
     }
 
     return (
@@ -126,36 +138,35 @@ export function LocationEditForm({
                     </div>
                 </div>
 
-                <div className="space-y-2">
-                    <label htmlFor="edit-signboard-phone" className="text-xs text-[#5c5942]">
-                        Signboard number(s) — if personal contact doesn't work
-                    </label>
-
-                    <input
-                        id="edit-signboard-phone"
-                        type="tel"
-                        value={form.signboardPhone}
-                        onChange={(e) => updateField("signboardPhone", e.target.value)}
-                        placeholder="e.g. 080XXXXXXXX, 070XXXXXXXX"
-                        className="border border-khaki rounded-sm px-3 py-3 text-sm w-full"
-                    />
-                </div>
+                <SignboardPicker
+                    file={newFile}
+                    onFileChange={setNewFile}
+                    existingUrl={existingUrl}
+                    removeExisting={removeExisting}
+                    onRemoveExistingChange={setRemoveExisting}
+                />
             </div>
 
             <div className="space-y-2">
-                <label htmlFor="edit-capacity-notes" className="text-sm font-medium text-ink">
-                    Capacity notes
+                <label htmlFor="edit-side-note" className="text-sm font-medium text-ink">
+                    Side note
                 </label>
 
                 <textarea
-                    id="edit-capacity-notes"
-                    value={form.capacityNotes}
-                    onChange={(e) => updateField("capacityNotes", e.target.value)}
-                    placeholder="e.g. Takes 3–5 corpers per batch"
+                    id="edit-side-note"
+                    value={form.sideNote}
+                    onChange={(e) => updateField("sideNote", e.target.value)}
+                    placeholder="e.g. Takes 3–5 corpers per batch, best to visit before 10am"
                     rows={3}
                     className="border border-khaki rounded-sm px-3 py-3 text-sm w-full resize-y"
                 />
             </div>
+
+            {error && (
+                <p role="alert" className="text-sm text-clay">
+                    {error}
+                </p>
+            )}
 
             <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
                 <button

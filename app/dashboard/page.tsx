@@ -30,7 +30,7 @@ export default async function DashboardPage() {
 
     const { data: locations } = await supabase
         .from("locations")
-        .select("id, name, address, contact_person, contact_phone, signboard_phone, capacity_notes, status, last_confirmed_at")
+        .select("id, name, address, contact_person, contact_phone, signboard_image_path, capacity_notes, status, last_confirmed_at")
         .eq("lga_id", president.lga_id)
         .eq("cds_group_id", president.cds_group_id)
         .order("created_at", { ascending: false });

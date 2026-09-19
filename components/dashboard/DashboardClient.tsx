@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -19,7 +18,7 @@ type Location = {
     address?: string | null;
     contact_person?: string | null;
     contact_phone?: string | null;
-    signboard_phone?: string | null;
+    signboard_image_path?: string | null;
     capacity_notes?: string | null;
     status: string;
     last_confirmed_at: string | null;
@@ -38,7 +37,7 @@ export function DashboardClient({
     async function refresh() {
         const { data } = await supabase
             .from("locations")
-            .select("id, name, address, contact_person, contact_phone, signboard_phone, capacity_notes, status, last_confirmed_at")
+            .select("id, name, address, contact_person, contact_phone, signboard_image_path, capacity_notes, status, last_confirmed_at")
             .eq("lga_id", president.lga_id)
             .eq("cds_group_id", president.cds_group_id)
             .order("created_at", { ascending: false });
@@ -163,22 +162,24 @@ export function DashboardClient({
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            {locations.map((loc) => (
-                                <PresidentLocationCard
-                                    key={loc.id}
-                                    id={loc.id}
-                                    name={loc.name}
-                                    address={loc.address}
-                                    contactPerson={loc.contact_person}
-                                    contactPhone={loc.contact_phone}
-                                    signboardPhone={loc.signboard_phone}
-                                    capacityNotes={loc.capacity_notes}
-                                    status={loc.status}
-                                    lastConfirmedAt={loc.last_confirmed_at}
-                                    presidentId={president.id}
-                                    onChanged={refresh}
-                                />
-                            ))}
+                        {locations.map((loc) => (
+                            <PresidentLocationCard
+                                key={loc.id}
+                                id={loc.id}
+                                name={loc.name}
+                                address={loc.address}
+                                contactPerson={loc.contact_person}
+                                contactPhone={loc.contact_phone}
+                                signboardImagePath={loc.signboard_image_path}
+                                sideNote={loc.capacity_notes}
+                                status={loc.status}
+                                lastConfirmedAt={loc.last_confirmed_at}
+                                presidentId={president.id}
+                                lgaId={president.lga_id}
+                                cdsGroupId={president.cds_group_id}
+                                onChanged={refresh}
+                            />
+                        ))}
                     </div>
                 )}
             </section>

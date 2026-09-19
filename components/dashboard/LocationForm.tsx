@@ -1,8 +1,9 @@
-
 "use client";
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { removeSignboard, uploadSignboard } from "@/lib/signboard";
+import { SignboardPicker } from "./SignboardPicker";
 
 type LocationFormProps = {
     presidentId: number;
@@ -22,9 +23,9 @@ export function LocationForm({
     const [name, setName] = useState("");
     const [address, setAddress] = useState("");
     const [contactPerson, setContactPerson] = useState("");
-    const [signboardPhone, setSignboardPhone] = useState("");
     const [contactPhone, setContactPhone] = useState("");
-    const [capacityNotes, setCapacityNotes] = useState("");
+    const [signboardFile, setSignboardFile] = useState<File | null>(null);
+    const [sideNote, setSideNote] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -34,32 +35,51 @@ export function LocationForm({
         setLoading(true);
         setError(null);
 
+        // Upload the photo first so the row is saved with its path in one insert.
+        let signboardPath: string | null = null;
+        if (signboardFile) {
+            try {
+                signboardPath = await uploadSignboard(
+                    supabase,
+                    lgaId,
+                    cdsGroupId,
+                    signboardFile
+                );
+            } catch (err) {
+                setLoading(false);
+                setError(err instanceof Error ? err.message : "Photo upload failed.");
+                return;
+            }
+        }
+
         const { error } = await supabase.from("locations").insert({
             name,
             address,
             contact_person: contactPerson,
             contact_phone: contactPhone,
-            signboard_phone: signboardPhone,
-            capacity_notes: capacityNotes,
+            signboard_image_path: signboardPath,
+            capacity_notes: sideNote, // column keeps its old name; only the label changed
             lga_id: lgaId,
             cds_group_id: cdsGroupId,
             created_by: presidentId,
             last_confirmed_at: new Date().toISOString(),
         });
 
-        setLoading(false);
-
         if (error) {
+            // Don't leave an orphaned photo behind.
+            if (signboardPath) await removeSignboard(supabase, signboardPath);
+            setLoading(false);
             setError(error.message);
             return;
         }
 
+        setLoading(false);
         setName("");
         setAddress("");
         setContactPerson("");
         setContactPhone("");
-        setSignboardPhone("");
-        setCapacityNotes("");
+        setSignboardFile(null);
+        setSideNote("");
 
         onCreated();
     }
@@ -132,39 +152,29 @@ export function LocationForm({
                     className="border border-khaki rounded-sm px-3 py-2 w-full text-sm mt-1"
                 />
             </div>
-            <div>
-                <label className="text-xs text-[#5c5942]">
-                    Signboard number(s) — if personal contact doesn't work
-                </label>
-                <input
-                    placeholder="e.g. 080XXXXXXXX, 070XXXXXXXX"
-                    value={signboardPhone}
-                    onChange={(e) => setSignboardPhone(e.target.value)}
-                    className="border border-khaki rounded-sm px-3 py-2 w-full text-sm mt-1"
-                />
-            </div>
+
+            <SignboardPicker file={signboardFile} onFileChange={setSignboardFile} />
 
             <div className="border-t border-line" />
 
-            {/* Capacity notes */}
+            {/* Side note */}
             <div className="space-y-2">
                 <label
-                    htmlFor="capacity-notes"
+                    htmlFor="side-note"
                     className="text-sm font-medium text-ink"
                 >
-                    Capacity notes
+                    Side note
                 </label>
 
                 <p className="text-xs text-[#5c5942]">
-                    Add useful information about the location's capacity
-                    or availability.
+                    Anything else corpers should know about this location.
                 </p>
 
                 <textarea
-                    id="capacity-notes"
-                    placeholder="e.g. Takes 3–5 corpers per batch"
-                    value={capacityNotes}
-                    onChange={(e) => setCapacityNotes(e.target.value)}
+                    id="side-note"
+                    placeholder="e.g. Takes 3–5 corpers per batch, best to visit before 10am"
+                    value={sideNote}
+                    onChange={(e) => setSideNote(e.target.value)}
                     rows={3}
                     className="border border-khaki rounded-sm px-3 py-3 w-full text-sm resize-y"
                 />
