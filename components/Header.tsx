@@ -8,9 +8,7 @@ export function Header() {
   const supabase = createClient();
   const router = useRouter();
 
-  const [status, setStatus] = useState<"anon" | "pending" | "verified">(
-    "anon"
-  );
+  const [status, setStatus] = useState<"anon" | "authenticated">("anon");
 
   useEffect(() => {
     let isMounted = true;
@@ -20,28 +18,8 @@ export function Header() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      if (!user) {
-        if (isMounted) setStatus("anon");
-        return;
-      }
-
-      const { data: president } = await supabase
-        .from("cds_presidents")
-        .select("is_verified")
-        .eq("auth_user_id", user.id)
-        .single();
-
       if (!isMounted) return;
-
-      if (president?.is_verified) {
-        setStatus("verified");
-        return;
-      }
-
-      setStatus("pending");
-      if (window.location.pathname !== "/signup/pending") {
-        router.push("/signup/pending");
-      }
+      setStatus(user ? "authenticated" : "anon");
     }
 
     void checkStatus();
@@ -75,13 +53,19 @@ export function Header() {
       </Link>
 
       <nav className="flex items-center gap-5 text-sm">
-        {status === "verified" && (
+        {status === "anon" && (
+          <Link href="/signup" className="text-forest">
+            Sign up
+          </Link>
+        )}
+
+        {status === "authenticated" && (
           <Link href="/dashboard" className="text-forest">
             Dashboard
           </Link>
         )}
 
-        {status === "verified" && (
+        {status === "authenticated" && (
           <button
             type="button"
             onClick={handleLogout}

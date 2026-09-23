@@ -1,3 +1,5 @@
+import { useMemo, useState } from "react";
+
 type Option = { id: number; name: string; state?: string };
 
 type LgaGroupFieldsProps = {
@@ -21,25 +23,50 @@ export function LgaGroupFields({
     onGroupChange,
     onNewGroupNameChange,
 }: LgaGroupFieldsProps) {
-    const selectedLga = lgas.find((l) => String(l.id) === lgaId);
+    const [selectedState, setSelectedState] = useState("");
+
+    const states = useMemo(() => {
+        const seen = new Set<string>();
+        for (const l of lgas) if (l.state) seen.add(l.state);
+        return Array.from(seen).sort((a, b) => a.localeCompare(b));
+    }, [lgas]);
+
+    const lgasForState = useMemo(
+        () => lgas.filter((l) => l.state === selectedState),
+        [lgas, selectedState]
+    );
+
+    function handleStateChange(state: string) {
+        setSelectedState(state);
+        onLgaChange(""); // reset LGA choice when state changes
+    }
 
     return (
         <>
             <select
-                value={lgaId}
-                onChange={(e) => onLgaChange(e.target.value)}
+                value={selectedState}
+                onChange={(e) => handleStateChange(e.target.value)}
                 className="border border-khaki rounded-sm px-3 py-2 w-full text-sm"
                 required
             >
-                <option value="">Select your LGA</option>
-                {lgas.map((l) => (
-                    <option key={l.id} value={l.id}>{l.name}</option>
+                <option value="">Select your state</option>
+                {states.map((s) => (
+                    <option key={s} value={s}>{s}</option>
                 ))}
             </select>
 
-            {selectedLga?.state && (
-                <p className="text-xs text-[#5c5942] -mt-1">State: {selectedLga.state}</p>
-            )}
+            <select
+                value={lgaId}
+                onChange={(e) => onLgaChange(e.target.value)}
+                className="border border-khaki rounded-sm px-3 py-2 w-full text-sm disabled:opacity-50"
+                required
+                disabled={!selectedState}
+            >
+                <option value="">{selectedState ? "Select your LGA" : "Pick a state first"}</option>
+                {lgasForState.map((l) => (
+                    <option key={l.id} value={l.id}>{l.name}</option>
+                ))}
+            </select>
 
             <select
                 value={groupId}
@@ -50,10 +77,10 @@ export function LgaGroupFields({
                 {groups.map((g) => (
                     <option key={g.id} value={g.id}>{g.name}</option>
                 ))}
-                <option value="">-- My group isn't listed --</option>
+                <option value="__new__">-- My group isn&apos;t listed --</option>
             </select>
 
-            {!groupId && (
+            {groupId === "__new__" && (
                 <input
                     type="text"
                     placeholder="Type your CDS group name"

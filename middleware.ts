@@ -2,7 +2,6 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 const PROTECTED_ROUTES = ["/dashboard"];
-const PENDING_ROUTE = "/signup/pending";
 
 export async function middleware(request: NextRequest) {
     let response = NextResponse.next({ request });
@@ -33,28 +32,19 @@ export async function middleware(request: NextRequest) {
 
     const pathname = request.nextUrl.pathname;
 
-    // Gate: /dashboard requires an authenticated session
+    // Gate: /dashboard requires an authenticated session — that's it.
+    // No more is_verified check or pending-page redirect: signup grants
+    // dashboard access immediately, and moderation now happens at the
+    // location level (admin approves individual submissions), not by
+    // vetting the account itself.
     const isProtected = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
     if (isProtected && !user) {
         return NextResponse.redirect(new URL("/login", request.url));
-    }
-
-    // Redirect: already-verified presidents skip the pending page entirely
-    if (pathname === PENDING_ROUTE && user) {
-        const { data: president } = await supabase
-            .from("cds_presidents")
-            .select("is_verified")
-            .eq("auth_user_id", user.id)
-            .single();
-
-        if (president?.is_verified) {
-            return NextResponse.redirect(new URL("/dashboard", request.url));
-        }
     }
 
     return response;
 }
 
 export const config = {
-    matcher: ["/dashboard/:path*", "/signup/pending"],
+    matcher: ["/dashboard/:path*"],
 };

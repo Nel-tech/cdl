@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { buildUsername, internalAuthEmail } from "@/lib/username";
+import { generateUniqueUsername, internalAuthEmail } from "@/lib/username";
 import { TextInput } from "@/components/ui/TextInput";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { LgaGroupFields } from "@/components/signup/LgaGroupFields";
@@ -57,7 +57,9 @@ export default function SignupPage() {
         e.preventDefault();
         setError(null);
 
-        if (!form.lgaId || (!form.groupId && !form.newGroupName.trim())) {
+        const wantsNewGroup = form.groupId === "__new__";
+
+        if (!form.lgaId || (!form.groupId || (wantsNewGroup && !form.newGroupName.trim()))) {
             setError("Select your LGA and CDS group.");
             return;
         }
@@ -66,7 +68,7 @@ export default function SignupPage() {
 
         let finalGroupId = form.groupId;
 
-        if (!form.groupId && form.newGroupName.trim()) {
+        if (wantsNewGroup) {
             const { data: newGroup, error: groupErr } = await supabase
                 .from("cds_groups")
                 .insert({ name: form.newGroupName.trim(), is_pending: true })
@@ -86,7 +88,10 @@ export default function SignupPage() {
             form.newGroupName.trim() ||
             groups.find((g) => String(g.id) === finalGroupId)?.name ||
             "";
-        const username = buildUsername(lgaName, groupName);
+
+        // Was buildUsername() directly — now checks for collisions since
+        // multiple people can register under the same LGA + group.
+        const username = await generateUniqueUsername(supabase, lgaName, groupName);
 
         const { data: authData, error: authErr } = await supabase.auth.signUp({
             email: internalAuthEmail(username),
@@ -106,7 +111,7 @@ export default function SignupPage() {
             full_name: form.fullName,
             lga_id: Number(form.lgaId),
             cds_group_id: Number(finalGroupId),
-            is_verified: false,
+            is_verified: false, // column stays for now; nothing gates on it anymore
         });
 
         setLoading(false);
@@ -116,16 +121,16 @@ export default function SignupPage() {
             return;
         }
 
-        router.push(`/signup/pending?username=${username}`);
+        router.push("/dashboard");
     }
 
     return (
         <div className="min-h-screen bg-paper">
             <Header />
             <div className="max-w-sm mx-auto px-6 py-8">
-                <h1 className="font-display text-xl text-ink mb-1">Register as CDS President</h1>
+                <h1 className="font-display text-xl text-ink mb-1">Sign up</h1>
                 <p className="text-xs text-[#5c5942] mb-5">
-                    Your account needs to be verified before you can log in.
+                    Add and manage CDS placement locations for your LGA.
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-3" autoComplete="on">
@@ -171,7 +176,7 @@ export default function SignupPage() {
                         disabled={loading}
                         className="bg-forest text-paper rounded-sm px-4 py-2 w-full text-sm disabled:opacity-50"
                     >
-                        {loading ? "Submitting..." : "Register"}
+                        {loading ? "Submitting..." : "Sign up"}
                     </button>
                 </form>
             </div>
